@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Montage Board Record</title>
+<meta name="description" content="A reader's index of what The Montage Board has already published, with the page each answer came from.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Board Record">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1E6A66">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&family=Public+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one reading column, sticky search, four tabs. Excerpts set in a reading serif so quoted text looks like what it is: a page from a publication. */
+:root{
+  --bg:#F2F4F7; --surface:#FFFFFF; --fg:#18212E; --muted:#5A6678; --line:#D6DDE6; --line-strong:#B9C3CF;
+  --accent:#1E6A66; --accent-ink:#FFFFFF; --accent-soft:#E4EFEE; --chip-ink:#164F4C;
+  --note-bg:#FBF4E4; --note-ink:#5E4210; --note-line:#E6D3A3;
+  --mark:#FFF1B8; --shadow:0 8px 28px rgba(24,33,46,.14);
+  --f-ui:"Public Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-read:"Literata",Georgia,"Times New Roman",serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0E1319; --surface:#171E27; --fg:#E6EBF1; --muted:#9BA7B6; --line:#2A3441; --line-strong:#3B4756;
+  --accent:#6CBDB7; --accent-ink:#0E1319; --accent-soft:#1B2B2B; --chip-ink:#A9DEDA;
+  --note-bg:#2A2314; --note-ink:#E6CC8C; --note-line:#4E4120;
+  --mark:#4A3F12; --shadow:0 8px 28px rgba(0,0,0,.45); color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#0E1319; --surface:#171E27; --fg:#E6EBF1; --muted:#9BA7B6; --line:#2A3441; --line-strong:#3B4756;
+  --accent:#6CBDB7; --accent-ink:#0E1319; --accent-soft:#1B2B2B; --chip-ink:#A9DEDA;
+  --note-bg:#2A2314; --note-ink:#E6CC8C; --note-line:#4E4120;
+  --mark:#4A3F12; --shadow:0 8px 28px rgba(0,0,0,.45); color-scheme:dark }
+
+*{box-sizing:border-box}
+html{font-size:17px}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-ui);font-size:1rem;line-height:1.5;-webkit-text-size-adjust:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:760px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 calc(40px + env(safe-area-inset-bottom,0px))}
+h1,h2,h3{text-wrap:balance;margin:0}
+h1{font-family:var(--f-read);font-weight:600;font-size:clamp(1.5rem,4.5vw,2rem);line-height:1.2;letter-spacing:-.01em}
+.lede{color:var(--muted);margin:.6rem 0 0;max-width:62ch}
+.byline{font-size:1rem;color:var(--muted);margin:.5rem 0 0}
+header.top{padding-block:1.4rem 1rem}
+.sticky{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:.5rem .6rem;border-bottom:1px solid var(--line)}
+.search{display:flex;align-items:center;gap:.5rem;background:var(--surface);border:1px solid var(--line-strong);border-radius:10px;padding:.2rem .6rem}
+.search svg{flex:none;width:18px;height:18px;color:var(--muted)}
+.search input{flex:1;min-width:0;border:0;background:transparent;color:var(--fg);font:inherit;font-size:1.05rem;padding:.7rem 0;min-height:44px;outline:none}
+.search input::placeholder{color:var(--muted)}
+.search button{border:0;background:transparent;color:var(--muted);font:inherit;font-size:1rem;font-weight:600;padding:.3rem .6rem;min-height:44px;min-width:44px;cursor:pointer;border-radius:6px}
+.search button:hover,.search button:focus-visible{color:var(--fg);outline:2px solid var(--accent);outline-offset:1px}
+.tabs{display:flex;gap:.25rem;margin-top:.6rem;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;border:1px solid transparent;background:transparent;color:var(--muted);font:inherit;font-weight:600;font-size:1rem;padding:.55rem .9rem;min-height:44px;border-radius:999px;cursor:pointer;white-space:nowrap}
+.tab[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+.tab:not([aria-selected="true"]):hover{background:var(--accent-soft);color:var(--fg)}
+.tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.tab .n{font-weight:500;opacity:.8;margin-left:.3em}
+.hint{font-size:1rem;color:var(--muted);margin:.9rem 0 0}
+.panel{padding-block:.9rem 0}
+.panel[hidden]{display:none!important}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:1rem;margin-top:.9rem;min-width:0}
+.card h2{font-family:var(--f-read);font-weight:600;font-size:1.2rem;line-height:1.3}
+.card .sum{margin:.55rem 0 0;max-width:68ch}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.85rem}
+.chip{border:1px solid var(--line-strong);background:var(--surface);color:var(--chip-ink);font:inherit;font-size:1rem;font-weight:600;padding:.5rem .8rem;min-height:44px;border-radius:999px;cursor:pointer;line-height:1.2;display:inline-flex;gap:.4em;align-items:center}
+.chip .k{font-weight:500;color:var(--muted);font-size:.88rem;letter-spacing:.04em}
+.chip[aria-expanded="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.chip[aria-expanded="true"] .k{color:var(--accent-ink);opacity:.8}
+.chip.hit{box-shadow:0 0 0 2px var(--mark) inset}
+.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.ex{margin-top:.6rem;border-left:3px solid var(--accent);padding:.6rem .9rem .7rem;background:var(--accent-soft);border-radius:0 10px 10px 0;min-width:0}
+.ex .src{font-size:1rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:.2rem .6rem}
+.ex .src b{color:var(--fg);font-weight:600}
+.ex q{display:block;font-family:var(--f-read);font-size:1.08rem;line-height:1.5;margin:.4rem 0 .55rem;quotes:"\201C" "\201D"}
+.ex q::before{content:open-quote}.ex q::after{content:close-quote}
+mark{background:var(--mark);color:inherit;border-radius:2px}
+input[type="search"]::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none}
+.btn{border:1px solid var(--line-strong);background:var(--surface);color:var(--fg);font:inherit;font-size:1rem;font-weight:600;padding:.6rem .9rem;min-height:44px;border-radius:8px;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.small{font-size:.95rem;padding:.5rem .8rem}
+.lender .num{display:inline-block;font-size:.82rem;font-weight:700;letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+.lender h2{margin-top:.15rem}
+.lab{font-size:.82rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:.9rem 0 .25rem}
+.asked{margin:0;max-width:68ch}
+.only{margin-top:.9rem;background:var(--note-bg);color:var(--note-ink);border:1px solid var(--note-line);border-radius:10px;padding:.7rem .9rem}
+.only .lab{color:var(--note-ink);margin-top:0;opacity:.85}
+.only p{margin:0}
+.miss p{margin:0}
+.miss .lives{margin-top:.5rem;font-size:1rem;color:var(--muted)}
+.miss .lives b{color:var(--fg);font-weight:600}
+.doc{display:grid;grid-template-columns:1fr auto;gap:.2rem .8rem;align-items:baseline}
+.doc h2{font-size:1.05rem}
+.doc .pg{font-size:1rem;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.doc .date{grid-column:1/-1;font-size:1rem;color:var(--muted)}
+.doc .cov{grid-column:1/-1;margin:.35rem 0 0;max-width:68ch}
+.doc .portal{grid-column:1/-1;margin:.5rem 0 0;font-size:1rem;color:var(--muted)}
+.empty{color:var(--muted);padding:1.2rem 0}
+footer{margin-top:2rem;padding-top:1rem;border-top:1px solid var(--line);font-size:1rem;color:var(--muted);max-width:68ch}
+footer a{color:var(--chip-ink);font-weight:600;text-decoration:underline;text-underline-offset:.15em}
+footer button.linkish{border:0;background:transparent;padding:.6rem 0;min-height:44px;color:var(--chip-ink);font:inherit;font-weight:600;text-decoration:underline;text-underline-offset:.15em;cursor:pointer}
+footer button.linkish:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+footer p{margin:.3rem 0}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:.6rem 1rem;border-radius:999px;font-size:1rem;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s;z-index:30;max-width:calc(100vw - 32px);text-align:center}
+.toast.show{opacity:1}
+
+@media (prefers-reduced-motion: reduce){ .toast{transition:none} }
+
+/* "Keep this on your phone" card: shown only in a normal browser tab, hidden once installed. Large type, no jargon. */
+.install{margin-top:1rem;background:var(--surface);border:2px solid var(--accent);border-radius:14px;padding:1.1rem 1.1rem 1rem;color:var(--fg);box-shadow:var(--shadow)}
+.install[hidden]{display:none!important}
+.install h2{font-family:var(--f-ui);font-weight:700;font-size:22px;line-height:1.25;margin:0}
+.install p{font-size:18px;line-height:1.45;margin:.6rem 0 0;max-width:60ch}
+.install ol{list-style:none;margin:.8rem 0 0;padding:0;display:grid;gap:.75rem}
+.install li{display:grid;grid-template-columns:34px 1fr;gap:.7rem;align-items:center;font-size:18px;line-height:1.4}
+.install li .no{width:34px;height:34px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:18px;display:flex;align-items:center;justify-content:center}
+.install li span.t{display:inline}
+.install .ico{display:inline-block;width:30px;height:30px;vertical-align:-8px;margin:0 .2em;color:var(--chip-ink);border:1.5px solid var(--line-strong);border-radius:7px;padding:3px;background:var(--bg)}
+.install .ico svg{width:100%;height:100%;display:block}
+.install .first{background:var(--note-bg);color:var(--note-ink);border:1px solid var(--note-line);border-radius:10px;padding:.7rem .9rem;margin-top:.8rem}
+.install .row{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1rem;align-items:center}
+.install .big{border:0;background:var(--accent);color:var(--accent-ink);font:inherit;font-weight:700;font-size:19px;padding:.85rem 1.3rem;min-height:52px;border-radius:12px;cursor:pointer}
+.install .later{border:1px solid var(--line-strong);background:var(--surface);color:var(--fg);font:inherit;font-weight:600;font-size:18px;padding:.7rem 1.1rem;min-height:48px;border-radius:12px;cursor:pointer}
+.install .big:focus-visible,.install .later:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+@media (display-mode: standalone){ .install{display:none!important} }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <h1>The Montage: What the Board Has Already Published</h1>
+    <p class="lede">Every answer here comes from the Association's own You Asked, We Answered newsletters and Meeting in a Minute summaries, Sept 2025 to Oct 2026, with the page it came from.</p>
+    <p class="byline">Prepared by Jason Brothers, owner, October 23, 2026</p>
+  </header>
+
+  <section class="install" id="install" hidden aria-labelledby="install-h">
+    <h2 id="install-h">Keep this on your phone</h2>
+    <p class="first" id="install-first" hidden></p>
+    <ol id="install-steps"></ol>
+    <p id="install-after" hidden></p>
+    <div class="row">
+      <button type="button" class="big" id="install-go" hidden>Put this on my phone</button>
+      <button type="button" class="later" id="install-later">Not now</button>
+    </div>
+  </section>
+
+  <div class="sticky">
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="Search topics, excerpts, documents" aria-label="Search everything on this page" autocomplete="off">
+      <button id="clearq" type="button" hidden>Clear</button>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Sections">
+      <button class="tab" role="tab" id="tab-topics" aria-controls="p-topics" aria-selected="true" data-tab="topics">By topic</button>
+      <button class="tab" role="tab" id="tab-lender" aria-controls="p-lender" aria-selected="false" data-tab="lender">Lender questions</button>
+      <button class="tab" role="tab" id="tab-missing" aria-controls="p-missing" aria-selected="false" data-tab="missing">Not in the publications</button>
+      <button class="tab" role="tab" id="tab-documents" aria-controls="p-documents" aria-selected="false" data-tab="documents">Documents</button>
+    </div>
+  </div>
+
+  <section class="panel" id="p-topics" role="tabpanel" aria-labelledby="tab-topics">
+    <p class="hint">Tap a topic's page chip to read the exact words from that page. Q marks an owner's question as printed; A marks the Association's answer; tile marks a Meeting in a Minute approval or update, as printed.</p>
+    <div id="topics"></div>
+  </section>
+
+  <section class="panel" id="p-lender" role="tabpanel" aria-labelledby="tab-lender" hidden>
+    <p class="hint">Six items the buyer's lender asked about. For each: what was asked, the pages that already speak to it, and what only the Association can supply.</p>
+    <div id="lender"></div>
+  </section>
+
+  <section class="panel" id="p-missing" role="tabpanel" aria-labelledby="tab-missing" hidden>
+    <p class="hint">Statements about the record itself: things the seventeen publications do not say, and where each one lives instead.</p>
+    <div id="missing"></div>
+  </section>
+
+  <section class="panel" id="p-documents" role="tabpanel" aria-labelledby="tab-documents" hidden>
+    <p class="hint">The seventeen publications behind this index. YAWA issues carry no printed page numbers, so every citation uses the physical page of the PDF (page 1 is the first page of the file). Each Meeting in a Minute is a single page.</p>
+    <div id="documents"></div>
+  </section>
+
+  <footer>
+    <p>This is a reader's index of published community communications. It is not legal advice, not a statement by the Association, and not a substitute for the Board's minutes or counsel's letters.</p>
+    <p>Full publications: resident portal (FirstService Connect).</p>
+    <p>Suggestions: tell Jason.</p>
+    <p><button type="button" class="linkish" id="install-again">How do I put this on my phone?</button></p>
+  </footer>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script id="data" type="application/json">{"docs":[{"id":"Y0925","file":"MNTG September, 2025, YAWA.pdf","short":"YAWA Sept 2025","name":"You Asked, We Answered: YAWA September 2025","date":"September 2025 (September 11 meeting)","pages":2,"covers":"Where the construction and special assessment financials live; the insurance extension; fourth-floor mold inspection method; separate Reserve, Construction Defect and Operating budgets."},{"id":"Y1025","file":"MNTG October 9, 2025, YAWA.pdf","short":"YAWA Oct 2025","name":"You Asked, We Answered: YAWA October 2025","date":"October 2025 (October 9 meeting)","pages":3,"covers":"Seismic steel timing for storage; the change of general counsel to LKG; reserve study process and funding philosophy; commercial allocation."},{"id":"Y1125","file":"_NOV 13th YAWA.pdf","short":"YAWA Nov 2025","name":"You Asked, We Answered: YAWA November 2025","date":"November 2025 (November 13 meeting)","pages":5,"covers":"Construction schedule and document posting; window responsibility; EV capacity; exit signs; legal fee structure; 2026 reserve expenses; fourth-floor mold inspection result."},{"id":"Y0226","file":"FEB 12th YAWA.pdf","short":"YAWA Feb–Mar 2026","name":"You Asked, We Answered: YAWA Feb - Mar 2026","date":"February and March 2026 (February 12 and March 12 meetings)","pages":8,"covers":"Change orders and Dropbox; the schedule through completion; snowstorm water intrusion and deferred drywall; fourth-floor storage access; amenity access under legal review; leak from a unit above."},{"id":"Y0426","file":"April 9th YAWA.pdf","short":"YAWA April 2026","name":"You Asked, We Answered: YAWA April 2026","date":"April 2026 (April 9 meeting)","pages":5,"covers":"Concierge Maintenance Program; counsel at executive session; P2 garage conditions sequenced behind building work; exterior envelope assessment including failing windows."},{"id":"Y0526","file":"YAWA_May_2026 (1).docx.pdf","short":"YAWA May 2026","name":"You Asked, We Answered: YAWA May 2026","date":"May 2026 (May 14 meeting)","pages":3,"covers":"Reserve fund about 35 percent funded; garden deck inspection; garage safety; main lobby magnetic shear locks; Elevator 7 wind lockouts and Elevator 1 re-roping."},{"id":"Y0626","file":"June 11th YAWA.docx.pdf","short":"YAWA June 2026","name":"You Asked, We Answered: YAWA June 2026","date":"June 2026 (June 11 meeting)","pages":3,"covers":"Gate repair; utility billing transition; monthly walkthroughs; fenestration consultant scope and window responsibility; proactive common area inspection program."},{"id":"M0618","file":"Meeting in a Minute 06.18.26.pdf","short":"MiaM June 18, 2026","name":"Meeting in a Minute, June 18, 2026","date":"June 18, 2026","pages":1,"covers":"Board approvals: fenestration consultant, EFIS demolition and design, gate repair, 2025 audit; pool deck projected completion September 21, 2026; crane delivery July 20; permit fee refund."},{"id":"Y0726","file":"July 8th YAWA.docx.pdf","short":"YAWA July 2026","name":"You Asked, We Answered: YAWA July 2026","date":"July 2026 (July 8 meeting)","pages":4,"covers":"Lump-sum contract and change orders; damage inventory; storage rebuild; Craig Wilcox pay application review; legal update in writing; contracts on Dropbox and the portal; dust."},{"id":"M0717","file":"2026-07-17 Meeting in a Minute.pdf","short":"MiaM July 17, 2026","name":"Meeting in a Minute, July 17, 2026","date":"July 17, 2026","pages":1,"covers":"Board approvals: Westex special inspections, pool deck pergolas, fire alarm build back, access controls, storage cage rebuild; emergency main lobby door upgrade; crane delivery July 20."},{"id":"Y0826","file":"Aug 13th YAWA.pdf","short":"YAWA Aug 2026","name":"You Asked, We Answered: YAWA August 2026","date":"August 2026 (August 13 meeting)","pages":5,"covers":"Storage reinstallation delay; permits, special inspections and the warranty book; building envelope and prior litigation; money market rates; remediation before hallway renovation; south lobby door."},{"id":"M0820","file":"Aug 13th MiaM.pdf","short":"MiaM Aug 20, 2026","name":"Meeting in a Minute, August 20, 2026","date":"August 20, 2026","pages":1,"covers":"Board approvals: fire sprinkler rebuild, balcony deck resealing; reconstruction update: seismic work complete, pool waterproofing and vessel installation underway."},{"id":"Y0926","file":"Sept 10 YAWA.pdf","short":"YAWA Sept 2026","name":"You Asked, We Answered: YAWA September 2026","date":"September 2026 (September 10 meeting)","pages":1,"covers":"Landscaping vendor and irrigation; garden deck inspection; potholes addressed."},{"id":"M0919","file":"September MiaM.pdf","short":"MiaM Sept 19, 2026","name":"Meeting in a Minute, September 19, 2026","date":"September 19, 2026","pages":1,"covers":"Board approvals: Change Order #26 (fireproofing and pavers), window cleaning, elevator HVAC, VFD and motors, landscaping; reconstruction update: pool tiling, EFIS demolition, storage cages pending fireproofing."},{"id":"Y1026","file":"YAWA October 2026.docx.pdf","short":"YAWA Oct 2026","name":"You Asked, We Answered: YAWA October 2026","date":"October 2026 (October 8 meeting)","pages":4,"covers":"Formal closeout process; fireproofing responsibility; damage walkthroughs before closeout; dust and elevators; 2027 budget and reserve study; utility billing pause; garden deck items; common area design."},{"id":"M1017","file":"MiaM Oct 17 2026.pdf","short":"MiaM Oct 17, 2026","name":"Meeting in a Minute, October 17, 2026","date":"October 17, 2026","pages":1,"covers":"Board approvals: Unit 2314 window replacement, OCIP and builder's risk extension through January 31, 2027, Aspen Leaf Phase 1, 2027 budget and reserve study; election results."},{"id":"SRV","file":"Survey Results Summary.pdf","short":"Survey Results","name":"The Montage 2026 Resident Survey: What We Heard & What Happens Next","date":"Undated; 198 responses","pages":2,"covers":"Resident sentiment on the pool project and financial reporting; a 90-day and 180-day action plan that includes publishing the finalized construction schedule."}],"cites":[{"id":"w1","doc":"Y0925","page":1,"kind":"question","text":"Can you clarify how the routine mold inspections of the fourth-floor hallways are conducted, what methods are used, and how the findings are documented, given that no consistent source of moisture has been identified but the issue remains a concern?"},{"id":"w2","doc":"Y0925","page":2,"kind":"answer","text":"The inspection process begins with a thorough visual assessment for any visible signs of mold growth, moisture intrusion, or structural damage. This initial visual check is often augmented by the use of specialized tools, such as moisture meters, which can detect elevated moisture levels within building materials."},{"id":"w3","doc":"Y1125","page":4,"kind":"answer","text":"The Board commissioned an inspection by a licensed inspector and found no mold. Because the full report contains personal unit owner information, please contact the office to review the summary of the findings."},{"id":"w4","doc":"Y1125","page":2,"kind":"answer","text":"Faulty windows are evaluated and addressed by the Association. Likewise, damage caused by a window failure is repaired by the Association."},{"id":"w5","doc":"Y0226","page":5,"kind":"answer","text":"The moisture intrusion experienced is in some instances related to the reconstruction efforts as well as, previously existing leaks at the pool deck, which the current reconstruction work is intended to remedy."},{"id":"w6","doc":"Y0226","page":6,"kind":"answer","text":"The community engineering team has evaluated the moisture intrusion in this location and concluded that no permanent damage was sustained by the hallway carpet. However, some damage was observed on the drywall in the adjacent hallway, which will be addressed following finalization of reconstruction projects."},{"id":"w7","doc":"Y0226","page":7,"kind":"question","text":"A leak from a unit above affected multiple units, but repair estimates from the mitigation contractor have been delayed."},{"id":"w8","doc":"Y0226","page":8,"kind":"answer","text":"The scale of the loss and the surrounding circumstances hindered the vendor's ability to gain access to multiple residences, which subsequently affected the timeline for communication and in turn delayed repair estimates."},{"id":"w9","doc":"Y0426","page":5,"kind":"answer","text":"Management is currently coordinating with specialists to finalize a comprehensive assessment of the exterior envelope. This includes evaluating failing windows and weep hole cover issues. Once this assessment is complete, a scheduled maintenance and repair program will be presented to the Board to address moisture intrusion risks and long-term preservation."},{"id":"w10","doc":"M0618","page":1,"kind":"tile","text":"Fenestration Consultant Retainer · $10,000 · On-site window systems evaluation; funded from reserves"},{"id":"w11","doc":"Y0626","page":2,"kind":"answer","text":"Fenestration refers to the entire exterior assembly of the building, including the glazing, the supporting structures for the glazing, and exterior doors."},{"id":"w12","doc":"Y0826","page":2,"kind":"answer","text":"Prior construction defects were the subject of a lawsuit that recovered funds now being used for remediation, including the window ledge waterproofing currently underway."},{"id":"w13","doc":"Y0826","page":2,"kind":"question","text":"Will interior wall repairs — water intrusion, potential mold — be addressed before the hallway and lobby cosmetic renovation begins?"},{"id":"w14","doc":"Y0826","page":3,"kind":"answer","text":"Yes. The board confirmed that all identified building issues will be fully remediated prior to beginning any cosmetic renovation work."},{"id":"w15","doc":"M0820","page":1,"kind":"tile","text":"Balcony Deck Resealing · $9,390 · Donovan Contracting; 6 limited common element decks; reserve expense"},{"id":"w16","doc":"Y1026","page":1,"kind":"answer","text":"Before the closeout process and punch list walks, management will hold multiple walkthroughs with the general contractor covering every phase of the reconstruction work and any damage directly related to construction. Since other contractors have also worked in the building, management will trace each item to its source before the association pursues repairs."},{"id":"w17","doc":"M1017","page":1,"kind":"tile","text":"Fast Glass Window Replacement · $5,080 · Unit #2314 – thermal fracture repair"},{"id":"l1","doc":"Y1025","page":1,"kind":"answer","text":"The Board has also had more recent and very positive experience working with LKG as it represents the association in the lawsuit with Montage North Commercial."},{"id":"l2","doc":"Y1025","page":1,"kind":"answer","text":"Due to other commitments our current counsel requested we transition to a new General Council in 30 days."},{"id":"l3","doc":"Y1125","page":4,"kind":"answer","text":"The Board transitioned from a $6,000 per month retainer to an hourly fee structure for new counsel, with the expectation that this will yield long-term savings."},{"id":"l4","doc":"Y0426","page":3,"kind":"answer","text":"Legal counsel attends executive sessions to advise the Board on sensitive matters that involve privacy or litigation."},{"id":"l5","doc":"Y0726","page":3,"kind":"answer","text":"The legal update will continue to be provided in advance of Board meetings, and for any questions that are submitted in advance of the Board meeting."},{"id":"l6","doc":"Y0826","page":2,"kind":"answer","text":"The matter of the original defective construction was previously litigated, and damages were recovered from the original builder."},{"id":"l7","doc":"Y0226","page":4,"kind":"answer","text":"Access to the common areas is strictly controlled by the Montage governing documents. This item is currently under legal review to determine the applicability of access restrictions, if any."},{"id":"f1","doc":"Y0925","page":1,"kind":"answer","text":"The Montage Monthly financial statements are available on the Connect portal under Financial Documents. Further details and explanations can be found on the CD Construction Workshop video and material that was presented and recorded and available in the portal."},{"id":"f2","doc":"Y0925","page":2,"kind":"answer","text":"It’s important to note that Reserve, Construction Defect, and Operating budgets (such as carpet cleaning) are all separate and are each being evaluated and tracked carefully."},{"id":"f3","doc":"Y0726","page":1,"kind":"answer","text":"Because this is a lump-sum contract, a change order is required to implement any subcontracts or other associated costs; it's the mechanism used to execute any item within the contract, not an indicator of scope creep on its own."},{"id":"f4","doc":"Y0726","page":1,"kind":"answer","text":"For example, the pool deck and balcony pergola change order, approved at the July 8 meeting for $192,705.69, was already budgeted at approximately $200,000 — the actual cost came in below the original estimate rather than adding new expense to the project."},{"id":"f5","doc":"Y0726","page":2,"kind":"answer","text":"Craig Wilcox remains engaged on an hourly retainer basis, reviewing pay applications for accuracy before they are processed."},{"id":"f6","doc":"Y1026","page":1,"kind":"answer","text":"Craig remains actively involved in the project and continues to support the association alongside our Facilities Manager and the management team."},{"id":"f7","doc":"Y0826","page":2,"kind":"answer","text":"Association funds are held in money market accounts earning approximately 3.4–3.6%, as required under NRS investment restrictions."},{"id":"b1","doc":"Y0726","page":1,"kind":"answer","text":"Each change order is reviewed and approved individually by the Board before it is added to the contract, and the community's Construction Defect (CD) Tracker is updated to reflect any budget impact."},{"id":"b2","doc":"Y0726","page":3,"kind":"answer","text":"Contracts are currently available via Dropbox and the Resident Portal. Residents who need assistance accessing this documentation are welcome to contact management directly."},{"id":"b3","doc":"Y0226","page":1,"kind":"answer","text":"Many construction defect documents are too large to upload directly to the portal and are therefore stored in the project Dropbox. The Dropbox link is available through the portal."},{"id":"b4","doc":"Y0226","page":2,"kind":"answer","text":"A number of these variables have been resolved to the point that we believe we can have a useful construction schedule through completion of the project. That is currently undergoing final revisions and once finalized will be shared with the community."},{"id":"b5","doc":"Y1125","page":2,"kind":"answer","text":"Yes, all CD documents will be uploaded to the portal once they are executed."},{"id":"b6","doc":"Y1025","page":1,"kind":"answer","text":"The estimated completion of seismic steel work affecting the community's storage areas is projected for mid-to-late January, 2026."},{"id":"b7","doc":"M0618","page":1,"kind":"tile","text":"Pool Deck Project on Track · Projected completion September 21, 2026"},{"id":"b8","doc":"M0618","page":1,"kind":"tile","text":"Pool & Spa Crane Delivery · July 20 · south end evacuation required; details to come"},{"id":"b9","doc":"M0618","page":1,"kind":"tile","text":"EFIS Exploratory Demolition · $21,000 · Waterproofing deficiencies; approved between meetings"},{"id":"b10","doc":"M0618","page":1,"kind":"tile","text":"EFIS Design Services · $13,200 · Architectural specifications to support remediation"},{"id":"b11","doc":"M0717","page":1,"kind":"tile","text":"Pool Deck Pergolas · $192,706 · Pergomatic; manufacture, permit & install; down from $200,000"},{"id":"b12","doc":"M0717","page":1,"kind":"tile","text":"Pool Deck Fire Alarm Build Back · $13,194 · Western States Fire Protection; down from $33,000 estimate"},{"id":"b13","doc":"M0717","page":1,"kind":"tile","text":"Pool Deck Access Controls · $20,500 · Desert Hills; magnetic shear lock upgrade; down from $31,260"},{"id":"b14","doc":"M0717","page":1,"kind":"tile","text":"Storage Cage Rebuild · $20,350 · Reno Forklift; 3rd & 4th floor cages displaced by seismic work"},{"id":"b15","doc":"M0717","page":1,"kind":"tile","text":"Pool & Spa Crane Delivery · July 20 · 2nd Street-facing 3rd & 4th floors; one-day lift"},{"id":"b16","doc":"M0820","page":1,"kind":"tile","text":"Fire Sprinkler System Rebuild · $28,695 · Western States Fire Protection; down from $39,964 estimate"},{"id":"b17","doc":"M0820","page":1,"kind":"tile","text":"Reconstruction Update · Pool waterproofing & vessel installation underway · Seismic work complete; paver contractor pending · Pool & spa permitting in progress"},{"id":"b18","doc":"M0919","page":1,"kind":"tile","text":"Change Order #26 · $89,466 · Fireproofing & direct paver purchase; net cost"},{"id":"b19","doc":"M0919","page":1,"kind":"tile","text":"Reconstruction Update · Pool tiling, waterproofing & EFIS demolition underway · Storage cages pending fireproofing completion"},{"id":"b20","doc":"Y0826","page":1,"kind":"answer","text":"All work requiring permits is permitted and inspected by the City. For items outside of City inspection expertise — such as the seismic welding and high-strength materials — an independent engineering firm conducts special inspections. At project completion, Brycon will assemble a warranty book covering all vendors’ work."},{"id":"b21","doc":"Y0826","page":1,"kind":"answer","text":"Phase 1 reinstallation of the fourth-floor north storage cages was projected to begin August 24th; however, a scheduling conflict has arisen regarding the sequencing of cage setup alongside fireproofing application."},{"id":"b22","doc":"Y0826","page":1,"kind":"answer","text":"A definitive completion date is not yet available, and management will communicate further details as the schedule is confirmed."},{"id":"b23","doc":"Y1026","page":1,"kind":"answer","text":"The project will go through a formal closeout process that verifies all completed work against the contract."},{"id":"b24","doc":"Y1026","page":1,"kind":"answer","text":"The fireproofing vendor carries full responsibility for all fireproofing work. This includes tying new fireproofing into the existing fireproofing and coating the structural steel throughout the affected areas."},{"id":"b25","doc":"M1017","page":1,"kind":"tile","text":"OCIP Insurance Extensions · $59,458 · Coverage thru Jan 31, 2027 + Builders Risk · Protects against construction liability gaps"},{"id":"b26","doc":"Y0226","page":1,"kind":"answer","text":"Full details are documented in the meeting minutes, which are distributed to the community once approved at the subsequent Board meeting."},{"id":"d1","doc":"Y0226","page":6,"kind":"answer","text":"The repair and restoration of the damaged drywall have been acknowledged and recorded; however, the physical work will be strategically deferred. The repair of the adjacent hallway drywall will commence following the finalization of the larger, ongoing community reconstruction projects."},{"id":"d2","doc":"Y0426","page":4,"kind":"answer","text":"Many of the maintenance issues currently being reported are planned to be resolved as part of upcoming work that follows a strategic sequence of repairs. In several cases, completing certain fixes now would be inefficient, as related building improvements need to occur first to ensure those repairs are effective and long-lasting."},{"id":"d3","doc":"Y1125","page":3,"kind":"answer","text":"The building's age prevents current electrical equipment from handling the load required for EV charging. Past upgrade explorations were cost-prohibitive. The Board plans to evaluate and prioritize these potential upgrades after the construction defect project is complete against other potential projects."},{"id":"d4","doc":"Y0226","page":3,"kind":"answer","text":"Access to the fourth-floor storage units is expected to be restored upon completion of the overall project."},{"id":"d5","doc":"Y1125","page":3,"kind":"answer","text":"We maintain building safety and functionality through a comprehensive preventative maintenance schedule, which includes daily, weekly, and monthly inspections of all critical equipment. This routine covers essential safety features such as exit signs, fire suppression systems, HVAC units, and elevators."},{"id":"d6","doc":"Y0526","page":1,"kind":"answer","text":"Management has conducted an inspection of the garden deck and its furniture. Many of the chairs in this area are pool loungers designated for the pool deck, and a budget exists for their cushion replacement."},{"id":"d7","doc":"Y0926","page":1,"kind":"answer","text":"Management has completed an inspection of the garden deck, evaluating its lighting, signage, and furnishings. While current furnishings primarily consist of pool loungers, patio furniture replacement has been budgeted and new cushion options are actively under review."},{"id":"d8","doc":"Y0926","page":1,"kind":"question","text":"Phil expressed gratitude to Dave and the maintenance team for addressing the potholes."},{"id":"d9","doc":"Y1026","page":3,"kind":"answer","text":"The facilities team will inspect the garden deck as a whole and address the items listed above, along with any others they find."},{"id":"d10","doc":"Y0526","page":2,"kind":"answer","text":"The board approved the replacement of the main lobby magnetic shear locks at this meeting as an emergency item."},{"id":"d11","doc":"M0717","page":1,"kind":"tile","text":"Main Lobby Door Upgrades · $10,280 · All American Lock; 3,000 lb magnetic shear locks"},{"id":"d12","doc":"Y0826","page":4,"kind":"answer","text":"Management confirmed this is an active high priority remediation project. Some contributing factors have been addressed but the issue is not fully resolved."},{"id":"d13","doc":"M0618","page":1,"kind":"tile","text":"Hot Water Re-Pipe · 10th & 11th floor · proposal expected July 8"},{"id":"e1","doc":"Y0526","page":3,"kind":"answer","text":"Otis Elevator has inspected the unit multiple times. Their finding is that when high winds push up from the P1 garage level into the elevator shaft, the doors are prevented from closing properly, triggering a lockout."},{"id":"e2","doc":"Y0526","page":3,"kind":"answer","text":"Separately, the board approved the re-rooping of Elevator #1 at this meeting as a compliance item, which will address a separate rope-wear issue flagged during the annual Cat 1 inspection."},{"id":"e3","doc":"M0618","page":1,"kind":"tile","text":"Quarterly Fire System Inspection · June 17 · low impact; no alarms or interruptions expected"},{"id":"e4","doc":"Y1026","page":2,"kind":"answer","text":"The Board approved the 2027 budget and an updated reserve study at this meeting. Once the construction defect project is complete, the association will conduct a full on-site reserve study, which will give the Board a clearer picture of long-term needs, including the elevators."},{"id":"i1","doc":"M0717","page":1,"kind":"tile","text":"Westex Special Inspections · $8,000 · 3rd, 4th & 5th floor drywall; fire protection oversight"},{"id":"i2","doc":"Y0626","page":3,"kind":"answer","text":"Management is currently developing a proactive common area inspection program. The plan will include periodic walkthroughs of all common areas and amenities using a standardized checklist to identify maintenance, cleanliness, safety, and operational improvement opportunities."},{"id":"r1","doc":"Y0526","page":1,"kind":"answer","text":"The reserve accountant calculates a percent-funded figure, and as of the last report, that figure was approximately 35%."},{"id":"r2","doc":"Y1125","page":4,"kind":"question","text":"The 2026 budget includes approximately $1.3 million in reserve expenses. What projects are planned for 2026 to use these reserve funds?"},{"id":"r3","doc":"Y1025","page":2,"kind":"answer","text":"Percentage funded is only one measure and perhaps not the best one to consider when evaluating a Reserve Fund."},{"id":"r4","doc":"Y1025","page":2,"kind":"answer","text":"This included a site visit and multiple revisions by Robert Browning our Licensed Reserve"},{"id":"r5","doc":"Y1025","page":3,"kind":"answer","text":"All feedback was reviewed multiple times by Browning and Rosequist. They are the experts we rely on for a complete and accurate Reserve Study."},{"id":"r6","doc":"M1017","page":1,"kind":"tile","text":"2027 Budget & Reserve Study · Proposed 2027 budget approved by board"},{"id":"r7","doc":"M0618","page":1,"kind":"tile","text":"2025 Annual Audit Approved · Clean audit; association records in good shape"},{"id":"r8","doc":"M0618","page":1,"kind":"tile","text":"Permit Fee Refund Recovered · $19,806 returned to the association after appeal"},{"id":"n1","doc":"Y0925","page":1,"kind":"answer","text":"The board approved an adjustment to the policy, increasing the cost by $34,519.59. This increase was the result of raising the project valuation from $12.5 million to $13.5 million."},{"id":"n2","doc":"Y0925","page":1,"kind":"answer","text":"As a result, Change Order 6 will credit the Association back approximately $75,000–$80,000 for insurance."},{"id":"s1","doc":"SRV","page":1,"kind":"summary","text":"Resident feedback consistently identifies the pool project as a key source of frustration and a symbol of broader concerns. The pool project remains the board's highest priority, and its successful completion is expected to be the single biggest driver of improved resident satisfaction."},{"id":"s2","doc":"SRV","page":1,"kind":"summary","text":"Financial reporting lacks the detail and transparency residents need."},{"id":"s3","doc":"SRV","page":2,"kind":"tile","text":"Publish the finalized construction schedule"}],"topics":[{"id":"water","title":"Water intrusion and mold","summary":"The record covers fourth-floor mold inspections in 2025 (none found by a licensed inspector), snowstorm moisture in March 2026 tied partly to the reconstruction and to pre-existing pool deck leaks, a building envelope assessment, a fenestration consultant, and window ledge waterproofing. In August 2026 the Board confirmed that all identified building issues, including water intrusion and potential mold in interior walls, will be fully remediated before the hallway and lobby renovation.","cites":["w1","w2","w3","w4","w5","w6","w7","w8","w9","w10","w11","w12","w13","w14","w15","w16","w17"]},{"id":"legal","title":"Litigation and legal","summary":"LKG became general counsel in October 2025 and already represented the Association in the lawsuit with Montage North Commercial; counsel moved to hourly billing and reports in executive session and in writing. The original construction defects were litigated and damages were recovered from the original builder. That is all the publications say about litigation; no current matter, case number or filing date appears.","cites":["l1","l2","l3","l4","l5","l6","l7"]},{"id":"funding","title":"How the repairs are funded","summary":"Construction and special assessment funds are reported in the monthly financial statements on the portal, and the Reserve, Construction Defect and Operating budgets are kept separate. The Brycon contract is lump-sum, change orders are the mechanism for adding cost and were mostly already in the project budget, pay applications are reviewed by Craig Wilcox, and funds sit in money market accounts. No publication mentions a loan, a loan balance, or the construction-defect fund balance.","cites":["f1","f2","f3","f4","f5","f6","f7","n1","n2"]},{"id":"brycon","title":"The Brycon construction work and schedule","summary":"Scope on the record includes seismic steel (complete by August 2026), fireproofing, pool deck waterproofing and vessel installation, EFIS work, window ledge waterproofing, pergolas, fire alarm and sprinkler build-back, access controls and storage cages. The pool deck project was projected to finish September 21, 2026; as of October 8, 2026 the project is headed into a formal closeout with walkthroughs and punch lists still ahead, and the OCIP policy runs through January 31, 2027.","cites":["b1","b2","b3","b4","b5","b26","b6","b7","b8","b9","b10","b11","b12","b13","b14","b15","b16","b17","b18","b19","b20","b21","b22","b23","b24","b25"]},{"id":"deferred","title":"Deferred maintenance","summary":"Several items are on the record as deliberately deferred until the construction project closes: hallway drywall, P2 garage surface conditions, garage electrical capacity for EV charging, and fourth-floor storage access. Other reported items have been inspected or repaired: exit signs, garden deck furniture and lighting, the main lobby locks, the south lobby door, and garage potholes; a hot water re-pipe proposal was tabled.","cites":["d1","d2","d3","d4","d5","d6","d7","d8","d9","d10","d11","d12","d13"]},{"id":"inspections","title":"Inspections and reports","summary":"Inspections named in the record over the last three years: City permit inspections and an independent engineering firm's special inspections of seismic welding, Westex special inspections of third- to fifth-floor drywall and fire protection, the fenestration consultant's on-site evaluation, a licensed mold inspection of the fourth floor, the quarterly fire system inspection, the annual Cat 1 elevator inspection, the reserve study with a site visit, and a clean 2025 audit. A proactive common area inspection program was being developed in June 2026.","cites":["b20","i1","w10","w3","e3","e2","r4","r5","e4","r7","i2"]},{"id":"reserves","title":"Reserves, budget and audit","summary":"The reserve fund was approximately 35 percent funded as of the last report, and the Board describes the reserve study as a 30-year plan rather than a percentage target. The 2026 budget carried about $1.3 million of reserve expenses, the 2025 audit was clean, a $19,806 permit fee refund was recovered, and the 2027 budget and an updated reserve study were approved October 8, 2026, with a full on-site reserve study to follow project completion.","cites":["r1","r3","r4","r5","r2","f7","r7","r8","e4","r6"]},{"id":"insurance","title":"Insurance (OCIP, builder's risk)","summary":"In September 2025 the Board had approved a $186,350 insurance extension and then a $34,519.59 adjustment after raising the project valuation from $12.5 million to $13.5 million, with Change Order 6 crediting back roughly $75,000 to $80,000 in insurance. In October 2026 the Board approved OCIP extensions of $59,458 with coverage through January 31, 2027 plus builder's risk.","cites":["n1","n2","b25"]},{"id":"elevators","title":"Elevators and life safety","summary":"Elevator 7 wind lockouts were inspected by Otis multiple times and adjusted, and Elevator 1 was re-roped as a compliance item after the annual Cat 1 inspection. Life safety items on the record include the quarterly fire system inspection, the pool deck fire alarm and sprinkler build-backs, exit sign maintenance, the emergency replacement of the main lobby magnetic shear locks, and the south lobby door remediation.","cites":["e1","e2","e3","b12","b16","d5","d10","d11","d12","e4"]},{"id":"survey","title":"Resident survey","summary":"The 2026 Resident Survey drew 198 responses. It records the pool project as the main source of frustration and financial reporting as lacking detail, and its action plan includes publishing the finalized construction schedule. No fact elsewhere in this index rests on the survey.","cites":["s1","s2","s3"]}],"lender":[{"n":1,"title":"Counsel letter on the water-intrusion claim","asked":"Whether the water-intrusion claim before the Association concerns one unit or the building as a whole, and whether the related repairs are done.","cites":["w12","w13","w14","w5","w6","w10","w15","w16"],"only":"Counsel's letter on the scope of the claim, and the claim file itself. No publication names the claim or the claimant."},{"n":2,"title":"Current litigation letter","asked":"Confirmation of every pending matter, what each seeks, how insurance and defense are handled, and that the original construction-defect suit is concluded.","cites":["l6","l1","l2","l4","l5"],"only":"Counsel's litigation letter. None of the seventeen publications lists the current matters, case numbers or filing dates."},{"n":3,"title":"Funding picture","asked":"Whether the special assessment pays for the repairs directly or repays a loan; if a loan, its terms, lender and servicer, original amount, current balance and how many owners are on it; and the construction-defect fund balance against the remaining Brycon contract balance.","cites":["f1","f2","f3","f4","f5","f7"],"only":"The loan agreement and terms, lender and servicer, original amount, current balance, the count of owners on the loan versus paid in full, and the construction-defect fund balance against the remaining contract balance. No publication mentions a loan at all."},{"n":4,"title":"Brycon contract, change orders and schedule","asked":"Which repairs will be completed, under what contract, and when.","cites":["f3","b1","b2","b3","b4","b7","b11","b14","b16","b17","b18","b19","b23","b25"],"only":"The executed contract, the change-order log, the current scope list, and the current master schedule with the expected completion date."},{"n":5,"title":"Deferred maintenance and three-year inspections","asked":"Whether there is deferred maintenance or an unsafe condition, and whether a professional inspection was done in the last three years.","cites":["d1","d2","d3","b20","i1","w10","w3","e3","e2","r4","r7"],"only":"A one-page management statement, and the inspection reports themselves (reserve study, engineering special inspections, fenestration evaluation)."},{"n":6,"title":"Approved Board minutes","asked":"The minutes behind items 2 and 3.","cites":["b26"],"only":"Minutes from 2023 (special assessment and loan), December 2017 (construction-defect settlement), and since October 2025 (counsel's reports). Each Meeting in a Minute records the prior month's minutes as approved, but the minutes themselves are not among the publications."}],"missing":[{"fact":"The newsletters and summaries do not mention the July 14, 2026 notice of water intrusion into the South third- and fourth-floor hallways and storage after rain on the pool deck work area.","lives":"An email notice to residents."},{"fact":"The publications do not list the three matters named at the October 8, 2026 meeting: Montage North LLC v. The Montage Owners Association (CV24-02808, dismissed with prejudice July 2025, appeal pending at the Nevada Supreme Court, No. 91629), Gung Ho Investments LLC v. the Association (filed August 10, 2026), and Babias v. the Association (filed August 19, 2026).","lives":"The FirstService resale package dated October 8, 2026 and counsel's verbal update."},{"fact":"The publications do not mention ADR Claim No. 26-157: filed January 6, 2026 by one owner alleging interior water damage from the balcony decks of her unit, mediated May 18, 2026, closed by the mediator, with the Association's August 12, 2026 notice that no action was pending.","lives":"The resale package and the August 12, 2026 notice."},{"fact":"The publications do not say that the original construction-defect lawsuit settled in December 2017. They say only that the defects were litigated and damages recovered (YAWA Aug 2026, p. 2).","lives":"The resale package, pp. 24–25."},{"fact":"No publication states that the pool and spa vessels were delivered on July 20, 2026. The record shows the crane delivery scheduled for July 20 (MiaM June 18 and July 17, 2026) and vessel installation underway by August 20 (MiaM Aug 20, 2026).","lives":"Not stated in any publication on hand."},{"fact":"The newsletters and summaries do not mention the 2023 bank loan for the special assessment, or that many owners paid in full instead.","lives":"The bank and servicer package previously emailed to the community, and the 2023 Board minutes."}]}</script>
+<script>
+(function(){
+  // "Keep this on your phone" card. Shown only in an ordinary browser tab; hidden once the page runs as an installed app.
+  // "Not now" hides it for this visit only (sessionStorage), never permanently. The footer link brings it back.
+  var card = document.getElementById('install'); if (!card) return;
+  var standalone = false;
+  try {
+    standalone = (window.navigator.standalone === true) ||
+      (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+  } catch(e){}
+  var ua = navigator.userAgent || '';
+  var isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var isAndroid = /Android/i.test(ua);
+  var iosOtherBrowser = isIOS && (/CriOS|FxiOS|EdgiOS|OPiOS|OPT\/|DuckDuckGo|GSA\/|FBAN|FBAV|FB_IAB|Instagram|Line\/|Twitter|LinkedInApp|Snapchat/i.test(ua) || !/Safari/.test(ua));
+
+  var ICON = {
+    share: '<span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4"/><path d="m8 8 4-4 4 4"/><path d="M8 11H6a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-2"/></svg></span>',
+    plus:  '<span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 8v8M8 12h8"/></svg></span>',
+    dots:  '<span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2.2"/><circle cx="12" cy="12" r="2.2"/><circle cx="12" cy="19" r="2.2"/></svg></span>'
+  };
+  function stepsHTML(steps){
+    return steps.map(function(t, i){ return '<li><span class="no" aria-hidden="true">' + (i + 1) + '</span><span class="t">' + t + '</span></li>'; }).join('');
+  }
+  var first = document.getElementById('install-first'), steps = document.getElementById('install-steps'),
+      after = document.getElementById('install-after'), go = document.getElementById('install-go'),
+      later = document.getElementById('install-later'), again = document.getElementById('install-again');
+  var deferredPrompt = null;
+
+  function fill(){
+    first.hidden = true; after.hidden = true; go.hidden = true; steps.innerHTML = '';
+    if (isIOS) {
+      if (iosOtherBrowser) {
+        first.textContent = 'Open this page in Safari first: tap the … (three dots) or the compass, then Open in Safari.';
+        first.hidden = false;
+      }
+      steps.innerHTML = stepsHTML([
+        'Tap the Share button ' + ICON.share + ' at the bottom of the screen',
+        'Scroll down and tap Add to Home Screen ' + ICON.plus,
+        'Tap Add in the top right.'
+      ]);
+      after.textContent = 'An icon called Board Record will appear on your home screen. Tap it any time.';
+      after.hidden = false;
+    } else if (isAndroid) {
+      if (deferredPrompt) {
+        go.hidden = false;
+        after.textContent = 'Tap the green button, then tap Add. An icon called Board Record will appear on your home screen. Tap it any time.';
+        after.hidden = false;
+      } else {
+        steps.innerHTML = stepsHTML([
+          'Tap the three dots ' + ICON.dots + ' in the top right',
+          'Tap Add to Home screen (or Install app)',
+          'Tap Add.'
+        ]);
+        after.textContent = 'An icon called Board Record will appear on your home screen. Tap it any time.';
+        after.hidden = false;
+      }
+    } else {
+      after.textContent = 'On a phone, this page can be saved as an app. Send yourself the link.';
+      after.hidden = false;
+    }
+  }
+  function show(){ fill(); card.hidden = false; }
+  function hide(){ card.hidden = true; }
+
+  var snoozed = false;
+  try { snoozed = sessionStorage.getItem('mb-install-later') === '1'; } catch(e){}
+  if (!standalone && !snoozed) show();
+
+  later.addEventListener('click', function(){
+    hide();
+    try { sessionStorage.setItem('mb-install-later', '1'); } catch(e){}
+  });
+  if (again) again.addEventListener('click', function(){
+    try { sessionStorage.removeItem('mb-install-later'); } catch(e){}
+    show();
+    card.scrollIntoView({behavior:'smooth', block:'start'});
+    setTimeout(function(){ later.focus(); }, 400);
+  });
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault(); deferredPrompt = e;
+    if (!card.hidden) fill();
+  });
+  go.addEventListener('click', function(){
+    if (!deferredPrompt) return;
+    var p = deferredPrompt; deferredPrompt = null;
+    p.prompt();
+    if (p.userChoice) p.userChoice.then(function(){ fill(); }, function(){ fill(); });
+  });
+  window.addEventListener('appinstalled', function(){ hide(); });
+  try {
+    if (window.matchMedia) window.matchMedia('(display-mode: standalone)').addEventListener('change', function(ev){ if (ev.matches) hide(); });
+  } catch(e){}
+})();
+(function(){
+  var D = JSON.parse(document.getElementById('data').textContent);
+  var docs = {}; D.docs.forEach(function(d){ docs[d.id] = d; });
+  var cites = {}; D.cites.forEach(function(c){ cites[c.id] = c; });
+  var KIND = {question:'Q', answer:'A', tile:'tile', summary:'summary'};
+  var KINDLABEL = {question:"An owner's question, as printed", answer:"The Association's answer", tile:"Meeting in a Minute item, as printed", summary:"Survey summary, as printed"};
+
+  function el(tag, attrs, kids){
+    var e = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function(k){
+      if (k === 'text') e.textContent = attrs[k];
+      else if (k === 'html') e.innerHTML = attrs[k];
+      else if (k.slice(0,2) === 'on') e.addEventListener(k.slice(2), attrs[k]);
+      else e.setAttribute(k, attrs[k]);
+    });
+    (kids || []).forEach(function(c){ if (c) e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+    return e;
+  }
+  function esc(s){ return s.replace(/[&<>"]/g, function(ch){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]; }); }
+  function hl(text, q){
+    if (!q) return esc(text);
+    var i = text.toLowerCase().indexOf(q), out = '', p = 0;
+    while (i >= 0){ out += esc(text.slice(p, i)) + '<mark>' + esc(text.slice(i, i + q.length)) + '</mark>'; p = i + q.length; i = text.toLowerCase().indexOf(q, p); }
+    return out + esc(text.slice(p));
+  }
+  function citeLabel(c){ return docs[c.doc].short + ' · p. ' + c.page; }
+  function citationString(c){ return docs[c.doc].name + ', p. ' + c.page + ": '" + c.text + "'"; }
+
+  var toastT;
+  function toast(msg){ var t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(function(){ t.classList.remove('show'); }, 1800); }
+  function copyText(text, holder){
+    var done = function(){ toast('Copied'); };
+    var fail = function(){
+      var ta = el('textarea', {'aria-label':'Copy this text', style:'width:100%;margin-top:.4rem;font:inherit;font-size:1rem'}); ta.value = text;
+      holder.appendChild(ta); ta.focus(); ta.select(); toast('Select and copy the text below');
+    };
+    try { if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fail); else fail(); } catch(e){ fail(); }
+  }
+
+  // ---- excerpt panel ----
+  function excerptPanel(c, q){
+    var panel = el('div', {'class':'ex', id:'ex-' + c.id + '-' + Math.random().toString(36).slice(2,6)});
+    panel.appendChild(el('div', {'class':'src'}, [
+      el('b', {text: docs[c.doc].name}), el('span', {text: 'p. ' + c.page + ' of ' + docs[c.doc].pages}), el('span', {text: KINDLABEL[c.kind]})
+    ]));
+    panel.appendChild(el('q', {html: hl(c.text, q)}));
+    var btn = el('button', {'class':'btn small', type:'button', text:'Copy citation', onclick:function(){ copyText(citationString(c), panel); }});
+    panel.appendChild(btn);
+    return panel;
+  }
+  function chipRow(ids, q, keepAll){
+    var row = el('div', {'class':'chips'});
+    var exBox = el('div');
+    ids.forEach(function(id){
+      var c = cites[id];
+      var hit = q && (c.text.toLowerCase().indexOf(q) >= 0 || citeLabel(c).toLowerCase().indexOf(q) >= 0 || docs[c.doc].name.toLowerCase().indexOf(q) >= 0);
+      if (q && !hit && !keepAll) return;
+      var chip = el('button', {'class':'chip' + (hit ? ' hit' : ''), type:'button', 'aria-expanded':'false', 'data-cite':id}, [
+        el('span', {text: citeLabel(c)}), el('span', {'class':'k', text: KIND[c.kind]})
+      ]);
+      var open = null;
+      chip.addEventListener('click', function(){
+        if (open){ open.remove(); open = null; chip.setAttribute('aria-expanded','false'); return; }
+        open = excerptPanel(c, q); exBox.appendChild(open); chip.setAttribute('aria-expanded','true');
+        chip.chipPanel = open;
+      });
+      if (hit && q.length >= 3){ open = excerptPanel(c, q); exBox.appendChild(open); chip.setAttribute('aria-expanded','true'); }
+      row.appendChild(chip);
+    });
+    var frag = document.createDocumentFragment(); frag.appendChild(row); frag.appendChild(exBox); return frag;
+  }
+
+  // ---- renderers ----
+  function topicMatches(t, q){
+    if (!q) return true;
+    if (t.title.toLowerCase().indexOf(q) >= 0 || t.summary.toLowerCase().indexOf(q) >= 0) return true;
+    return t.cites.some(function(id){ var c = cites[id]; return c.text.toLowerCase().indexOf(q) >= 0 || citeLabel(c).toLowerCase().indexOf(q) >= 0 || docs[c.doc].name.toLowerCase().indexOf(q) >= 0; });
+  }
+  function renderTopics(q){
+    var host = document.getElementById('topics'); host.innerHTML = ''; var n = 0;
+    D.topics.forEach(function(t){
+      if (!topicMatches(t, q)) return; n++;
+      var titleHit = q && (t.title.toLowerCase().indexOf(q) >= 0 || t.summary.toLowerCase().indexOf(q) >= 0);
+      var card = el('article', {'class':'card', id:'t-' + t.id});
+      card.appendChild(el('h2', {html: hl(t.title, q)}));
+      card.appendChild(el('p', {'class':'sum', html: hl(t.summary, q)}));
+      card.appendChild(chipRow(t.cites, q, titleHit));
+      host.appendChild(card);
+    });
+    if (!n) host.appendChild(el('p', {'class':'empty', text:'No topic mentions that. Try a shorter word, or check the other tabs.'}));
+    return n;
+  }
+  function lenderMatches(l, q){
+    if (!q) return true;
+    if ((l.title + ' ' + l.asked + ' ' + l.only).toLowerCase().indexOf(q) >= 0) return true;
+    return l.cites.some(function(id){ return cites[id].text.toLowerCase().indexOf(q) >= 0 || citeLabel(cites[id]).toLowerCase().indexOf(q) >= 0; });
+  }
+  function renderLender(q){
+    var host = document.getElementById('lender'); host.innerHTML = ''; var n = 0;
+    D.lender.forEach(function(l){
+      if (!lenderMatches(l, q)) return; n++;
+      var textHit = q && (l.title + ' ' + l.asked + ' ' + l.only).toLowerCase().indexOf(q) >= 0;
+      var card = el('article', {'class':'card lender'});
+      card.appendChild(el('span', {'class':'num', text:'Item ' + l.n + ' of 6'}));
+      card.appendChild(el('h2', {html: hl(l.title, q)}));
+      card.appendChild(el('div', {'class':'lab', text:"What the buyer's lender asked"}));
+      card.appendChild(el('p', {'class':'asked', html: hl(l.asked, q)}));
+      card.appendChild(el('div', {'class':'lab', text:'Pages that already speak to it'}));
+      card.appendChild(chipRow(l.cites, q, textHit));
+      var only = el('div', {'class':'only'});
+      only.appendChild(el('div', {'class':'lab', text:'Only the Association can supply'}));
+      only.appendChild(el('p', {html: hl(l.only, q)}));
+      card.appendChild(only);
+      host.appendChild(card);
+    });
+    if (!n) host.appendChild(el('p', {'class':'empty', text:'None of the six items mentions that.'}));
+    return n;
+  }
+  function renderMissing(q){
+    var host = document.getElementById('missing'); host.innerHTML = ''; var n = 0;
+    D.missing.forEach(function(m){
+      if (q && (m.fact + ' ' + m.lives).toLowerCase().indexOf(q) < 0) return; n++;
+      var card = el('article', {'class':'card miss'});
+      card.appendChild(el('p', {html: hl(m.fact, q)}));
+      card.appendChild(el('p', {'class':'lives', html: '<b>Where it lives:</b> ' + hl(m.lives, q)}));
+      host.appendChild(card);
+    });
+    if (!n) host.appendChild(el('p', {'class':'empty', text:'Nothing on this list mentions that.'}));
+    return n;
+  }
+  function renderDocs(q){
+    var host = document.getElementById('documents'); host.innerHTML = ''; var n = 0;
+    D.docs.forEach(function(d){
+      if (q && (d.name + ' ' + d.date + ' ' + d.covers + ' ' + d.short).toLowerCase().indexOf(q) < 0) return; n++;
+      var card = el('article', {'class':'card doc'});
+      card.appendChild(el('h2', {html: hl(d.name, q)}));
+      card.appendChild(el('span', {'class':'pg', text: d.pages + (d.pages === 1 ? ' page' : ' pages')}));
+      card.appendChild(el('div', {'class':'date', html: 'Dated as printed: ' + hl(d.date, q)}));
+      card.appendChild(el('p', {'class':'cov', html: hl(d.covers, q)}));
+      card.appendChild(el('p', {'class':'portal', text:'Full publication: resident portal (FirstService Connect)'}));
+      host.appendChild(card);
+    });
+    if (!n) host.appendChild(el('p', {'class':'empty', text:'No document matches that.'}));
+    return n;
+  }
+
+  // ---- tabs + search ----
+  var TABS = ['topics','lender','missing','documents'];
+  var current = 'topics';
+  function showTab(name){
+    if (TABS.indexOf(name) < 0) name = 'topics';
+    current = name;
+    TABS.forEach(function(t){
+      document.getElementById('tab-' + t).setAttribute('aria-selected', t === name ? 'true' : 'false');
+      document.getElementById('p-' + t).hidden = t !== name;
+    });
+    try { localStorage.setItem('mb-tab', name); } catch(e){}
+  }
+  function renderAll(){
+    var q = document.getElementById('q').value.trim().toLowerCase();
+    document.getElementById('clearq').hidden = !q;
+    var counts = {topics: renderTopics(q), lender: renderLender(q), missing: renderMissing(q), documents: renderDocs(q)};
+    TABS.forEach(function(t){
+      var b = document.getElementById('tab-' + t); var base = b.textContent.replace(/\s*\(\d+\)$/, '');
+      b.innerHTML = ''; b.appendChild(document.createTextNode(base));
+      if (q) b.appendChild(el('span', {'class':'n', text:'(' + counts[t] + ')'}));
+    });
+  }
+  document.querySelectorAll('.tab').forEach(function(b){ b.addEventListener('click', function(){ showTab(b.getAttribute('data-tab')); }); });
+  var qi = document.getElementById('q'); var qt;
+  qi.addEventListener('input', function(){ clearTimeout(qt); qt = setTimeout(renderAll, 120); });
+  document.getElementById('clearq').addEventListener('click', function(){ qi.value = ''; renderAll(); qi.focus(); });
+  var h = (location.hash || '').replace('#','');
+  var remembered = null; try { remembered = localStorage.getItem('mb-tab'); } catch(e){}
+  showTab(TABS.indexOf(h) >= 0 ? h : (remembered || 'topics'));
+  renderAll();
+
+})();
+</script>
+</body>
+</html>
